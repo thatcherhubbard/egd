@@ -58,9 +58,7 @@
 -define(get1p8(Idx),((Idx)  band 1)).
 
 binary(W, H, Bitmap) when is_binary(Bitmap) ->
-    Z = zlib:open(),
-    Binary = bitmap2png(W, H, Bitmap, Z),
-    zlib:close(Z),
+    Binary = bitmap2png(W, H, Bitmap),
     Binary.
 
 
@@ -69,9 +67,9 @@ binary(W, H, Bitmap) when is_binary(Bitmap) ->
 % Begin Tainted
 
 bitmap2png(W, H, Bitmap,Z) ->
-    HDR = create_chunk(<<"IHDR",W:32,H:32,8:8,(png_type(r8g8b8)):8,0:8,0:8,0:8>>,Z),
-    DATA = create_chunk(["IDAT",compress_image(0,3*W,Bitmap,[])],Z),
-    END  = create_chunk(<<"IEND">>,Z),
+    HDR = create_chunk(<<"IHDR",W:32,H:32,8:8,(png_type(r8g8b8)):8,0:8,0:8,0:8>>),
+    DATA = create_chunk(["IDAT",compress_image(0,3*W,Bitmap,[])]),
+    END  = create_chunk(<<"IEND">>),
     list_to_binary([?MAGIC,HDR,DATA,END]).
 
 compress_image(I,RowLen, Bin, Acc) ->
@@ -95,9 +93,9 @@ filter_row(Row,_RowLen) ->
 %png_type(r8g8b8a8) -> ?TRUECOLOUR_A;
 png_type(r8g8b8) -> ?TRUECOLOUR.
 
-create_chunk(Bin,Z) when is_list(Bin) ->
+create_chunk(Bin) when is_list(Bin) ->
     create_chunk(list_to_binary(Bin),Z);
-create_chunk(Bin,Z) when is_binary(Bin) ->
+create_chunk(Bin) when is_binary(Bin) ->
     Sz = size(Bin)-4,
     Crc = erlang:crc32(Bin),
     <<Sz:32,Bin/binary,Crc:32>>.
