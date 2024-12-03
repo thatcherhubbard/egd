@@ -94,7 +94,7 @@ filter_row(Row,_RowLen) ->
 png_type(r8g8b8) -> ?TRUECOLOUR.
 
 create_chunk(Bin) when is_list(Bin) ->
-    create_chunk(list_to_binary(Bin),Z);
+    create_chunk(list_to_binary(Bin));
 create_chunk(Bin) when is_binary(Bin) ->
     Sz = size(Bin)-4,
     Crc = erlang:crc32(Bin),
